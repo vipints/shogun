@@ -40,7 +40,6 @@
 #ifdef HAVE_CXX11
 
 #include <shogun/lib/common.h>
-
 #include <memory>
 
 namespace viennacl

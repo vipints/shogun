@@ -16,7 +16,20 @@
 
 #include <shogun/io/File.h>
 
-#include <google/protobuf/message.h>
+// a hack to avoid clashes with apple's ConditionalMacros.h
+#ifdef __APPLE__
+    #ifdef TYPE_BOOL
+        #define ___APPLE_TYPE_BOOL TYPE_BOOL
+        #undef TYPE_BOOL
+    #endif
+#endif
+
+#ifdef __APPLE__
+    #ifdef ___APPLE_TYPE_BOOL
+        #define TYPE_BOOL ___APPLE_TYPE_BOOL
+        #undef ___APPLE_TYPE_BOOL
+    #endif
+#endif
 
 #include <shogun/io/protobuf/ShogunVersion.pb.h>
 #include <shogun/io/protobuf/Headers.pb.h>

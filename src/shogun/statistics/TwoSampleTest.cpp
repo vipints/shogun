@@ -31,6 +31,7 @@
 
 #include <shogun/statistics/TwoSampleTest.h>
 #include <shogun/features/Features.h>
+#include <shogun/mathematics/Math.h>
 
 using namespace shogun;
 
@@ -98,7 +99,7 @@ SGVector<float64_t> CTwoSampleTest::sample_null()
 
 		/* create index permutation and add as subset. This will mix samples
 		 * from p and q */
-		SGVector<index_t>::permute_vector(ind_permutation);
+		CMath::permute(ind_permutation);
 
 		/* compute statistic for this permutation of mixed samples */
 		m_p_and_q->add_subset(ind_permutation);
@@ -120,7 +121,7 @@ float64_t CTwoSampleTest::compute_p_value(float64_t statistic)
 		SGVector<float64_t> values=sample_null();
 
 		/* find out percentile of parameter "statistic" in null distribution */
-		values.qsort();
+		CMath::qsort(values);
 		float64_t i=values.find_position_to_insert(statistic);
 
 		/* return corresponding p-value */

@@ -51,7 +51,7 @@ CCARTree::CCARTree(SGVector<bool> attribute_types, EProblemType prob_type)
 	set_machine_problem_type(prob_type);
 }
 
-CCARTree::CCARTree(SGVector<bool> attribute_types, int32_t num_folds, EProblemType prob_type, bool cv_prune)
+CCARTree::CCARTree(SGVector<bool> attribute_types, EProblemType prob_type, int32_t num_folds, bool cv_prune)
 : CTreeMachine<CARTreeNodeData>()
 {
 	init();
@@ -313,7 +313,7 @@ CBinaryTreeMachineNode<CARTreeNodeData>* CCARTree::CARTtrain(CFeatures* data, SG
 		case PT_MULTICLASS:
 			{
 				SGVector<float64_t> lab=labels_vec.clone();	
-				lab.qsort();
+				CMath::qsort(lab);
 				// stores max total weight for a single label 
 				int32_t max=weights[0];
 				// stores one of the indices having max total weight
@@ -466,7 +466,7 @@ SGVector<float64_t> CCARTree::get_unique_labels(SGVector<float64_t> labels_vec, 
 		delta=m_label_epsilon;
 
 	SGVector<float64_t> ulabels(labels_vec.vlen);
-	SGVector<index_t> sidx=labels_vec.argsort();
+	SGVector<index_t> sidx=CMath::argsort(labels_vec);
 	ulabels[0]=labels_vec[sidx[0]];
 	n_ulabels=1;
 	int32_t start=0;
@@ -528,7 +528,7 @@ int32_t CCARTree::compute_best_attribute(SGMatrix<float64_t> mat, SGVector<float
 			feats[j]=mat(i,j);
 
 		// O(N*logN)
-		SGVector<index_t> sorted_args=feats.argsort();
+		SGVector<index_t> sorted_args=CMath::argsort(feats);
 
 		// number of non-missing vecs
 		int32_t n_nm_vecs=feats.vlen;
@@ -1296,7 +1296,7 @@ float64_t CCARTree::find_weakest_alpha(bnode_t* node)
 
 		SG_UNREF(left);
 		SG_UNREF(right);
-		return weak_links.min(weak_links.vector,weak_links.vlen);		
+		return CMath::min(weak_links.vector,weak_links.vlen);		
 	}
 
 	return CMath::MAX_REAL_NUMBER;

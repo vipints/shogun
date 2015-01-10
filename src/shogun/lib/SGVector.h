@@ -78,6 +78,22 @@ template<class T> class SGVector : public SGReferencedData
 #endif
 #endif
 
+		/** Set vector to a constant
+		 *
+		 * @param const_elem - value to set vector to
+		 */
+		void set_const(T const_elem);
+
+		/**
+		 * Get the vector (no copying is done here)
+		 *
+		 * @return the refcount increased vector
+		 */
+		SGVector<T> get()
+		{
+			return *this;
+		}
+
 #ifndef SWIG // SWIG should skip this part
 		/** Wrapper for the copy constructor useful for SWIG interfaces
 		 *
@@ -97,12 +113,6 @@ template<class T> class SGVector : public SGReferencedData
 		/** Fill vector with zeros */
 		void zero();
 
-		/** Set vector to a constant
-		 *
-		 * @param const_elem - value to set vector to
-		 */
-		void set_const(T const_elem);
-
 		/** Range fill a vector with start...start+len-1
 		 *
 		 * @param start - value to be assigned to first element of vector
@@ -116,38 +126,6 @@ template<class T> class SGVector : public SGReferencedData
 		 */
 		void random(T min_value, T max_value);
 
-		/** Returns a random permutation of number from 0 to len-1 */
-		void randperm();
-
-		/** Returns a random permutation of number from 0 to n-1 */
-		static SGVector<T> randperm_vec(int32_t n);
-
-		/** Returns a random permutation of number from 0 to n-1.
-		 * Caller has to free memory.
-		 *
-		 * @param n range of permutation
-		 * @return random permutation of number from 0 to n-1
-		 */
-		static T* randperm(int32_t n);
-
-		/** Returns a vector with n linearly spaced elements between start and end.
-		 *
-		 * @param start beginning of the interval to divide
-		 * @param end upper bound of the interval to divide
-		 * @param n number of elements used to divide the interval
-		 * @return vector with linearly spaced elements within the interval
-		 */
-		static SGVector<float64_t> linspace_vec(T start, T end, int32_t n);
-
-		/** Returns an array with n linearly spaced elements between start and end.
-		 *
-		 * @param start beginning of the interval to divide
-		 * @param end upper bound of the interval to divide
-		 * @param n number of elements used to divide the interval
-		 * @return array with linearly spaced elements within the interval
-		 */
-		static float64_t* linspace(T start, T end, int32_t n);
-
 		/** For a sorted (ascending) vector, gets the index after the first
 		 * element that is smaller than the given one
 		 *
@@ -155,25 +133,6 @@ template<class T> class SGVector : public SGReferencedData
 		 * @return index of the first element greater than given one
 		 */
 		index_t find_position_to_insert(T element);
-
-		/** Quicksort the vector
-		 * it is sorted from in ascending (for type T)
-		 */
-		void qsort();
-
-		/** Get sorted index.
-		 *
-		 * idx = v.argsort() is similar to Matlab [~, idx] = sort(v)
-		 *
-		 * @return sorted index for this vector
-		 */
-		SGVector<index_t> argsort();
-
-		/** Check if vector is sorted
-		 *
-		 * @return true if vector is sorted, false otherwise
-		 */
-		bool is_sorted() const;
 
 		/** Clone vector */
 		SGVector<T> clone() const;
@@ -189,25 +148,6 @@ template<class T> class SGVector : public SGReferencedData
 
 		/** Random vector */
 		static void random_vector(T* vec, int32_t len, T min_value, T max_value);
-
-		/** Random permatutaion */
-		static void randperm(T* perm, int32_t n);
-
-		/** Permute */
-		static void permute(T* vec, int32_t n);
-
-		/** Permute with given CRandom state */
-		static void permute(T* vec, int32_t n, CRandom * rand);
-
-		/**
-		 * Get the vector (no copying is done here)
-		 *
-		 * @return the refcount increased vector
-		 */
-		SGVector<T> get()
-		{
-			return *this;
-		}
 
 		/** Get vector element at index
 		 *
@@ -353,15 +293,6 @@ template<class T> class SGVector : public SGReferencedData
 		 */
 		bool equals(SGVector<T>& other);
 
-		/** Permute vector */
-		static void permute_vector(SGVector<T> vec);
-
-		/** Create a random permutation in place */
-		void permute();
-
-		/** Create a random permutation with given CRandom state */
-		void permute(CRandom * rand);
-
 		/// || x ||_2
 		static T twonorm(const T* x, int32_t len);
 
@@ -377,140 +308,6 @@ template<class T> class SGVector : public SGReferencedData
 		/// x=x+alpha*y
 		static void vec1_plus_scalar_times_vec2(T* vec1,
 				const T scalar, const T* vec2, int32_t n);
-
-		/// Compute dot product between v1 and v2 (blas optimized)
-		static inline float64_t dot(const bool* v1, const bool* v2, int32_t n)
-		{
-			float64_t r=0;
-			for (int32_t i=0; i<n; i++)
-				r+=((v1[i]) ? 1 : 0) * ((v2[i]) ? 1 : 0);
-			return r;
-		}
-
-		/// Compute dot product between v1 and v2 (blas optimized)
-		static inline floatmax_t dot(const floatmax_t* v1, const floatmax_t* v2, int32_t n)
-		{
-			floatmax_t r=0;
-			for (int32_t i=0; i<n; i++)
-				r+=v1[i]*v2[i];
-			return r;
-		}
-
-
-		/// Compute dot product between v1 and v2 (blas optimized)
-		static float64_t dot(const float64_t* v1, const float64_t* v2, int32_t n);
-
-		/// Compute dot product between v1 and v2 (blas optimized)
-		static float32_t dot(const float32_t* v1, const float32_t* v2, int32_t n);
-
-		/// compute dot product between v1 and v2 (for 64bit unsigned ints)
-		static inline float64_t dot(
-			const uint64_t* v1, const uint64_t* v2, int32_t n)
-		{
-			float64_t r=0;
-			for (int32_t i=0; i<n; i++)
-				r+=((float64_t) v1[i])*v2[i];
-
-			return r;
-		}
-		/// Compute dot product between v1 and v2 (for 64bit ints)
-		static inline float64_t dot(
-			const int64_t* v1, const int64_t* v2, int32_t n)
-		{
-			float64_t r=0;
-			for (int32_t i=0; i<n; i++)
-				r+=((float64_t) v1[i])*v2[i];
-
-			return r;
-		}
-
-		/// Compute dot product between v1 and v2 (for 32bit ints)
-		static inline float64_t dot(
-			const int32_t* v1, const int32_t* v2, int32_t n)
-		{
-			float64_t r=0;
-			for (int32_t i=0; i<n; i++)
-				r+=((float64_t) v1[i])*v2[i];
-
-			return r;
-		}
-
-		/// Compute dot product between v1 and v2 (for 32bit unsigned ints)
-		static inline float64_t dot(
-			const uint32_t* v1, const uint32_t* v2, int32_t n)
-		{
-			float64_t r=0;
-			for (int32_t i=0; i<n; i++)
-				r+=((float64_t) v1[i])*v2[i];
-
-			return r;
-		}
-
-		/// Compute dot product between v1 and v2 (for 16bit unsigned ints)
-		static inline float64_t dot(
-			const uint16_t* v1, const uint16_t* v2, int32_t n)
-		{
-			float64_t r=0;
-			for (int32_t i=0; i<n; i++)
-				r+=((float64_t) v1[i])*v2[i];
-
-			return r;
-		}
-
-		/// Compute dot product between v1 and v2 (for 16bit unsigned ints)
-		static inline float64_t dot(
-			const int16_t* v1, const int16_t* v2, int32_t n)
-		{
-			float64_t r=0;
-			for (int32_t i=0; i<n; i++)
-				r+=((float64_t) v1[i])*v2[i];
-
-			return r;
-		}
-
-		/// Compute dot product between v1 and v2 (for 8bit (un)signed ints)
-		static inline float64_t dot(
-			const char* v1, const char* v2, int32_t n)
-		{
-			float64_t r=0;
-			for (int32_t i=0; i<n; i++)
-				r+=((float64_t) v1[i])*v2[i];
-
-			return r;
-		}
-
-		/// Compute dot product between v1 and v2 (for 8bit (un)signed ints)
-		static inline float64_t dot(
-			const uint8_t* v1, const uint8_t* v2, int32_t n)
-		{
-			float64_t r=0;
-			for (int32_t i=0; i<n; i++)
-				r+=((float64_t) v1[i])*v2[i];
-
-			return r;
-		}
-
-		/// Compute dot product between v1 and v2 (for 8bit (un)signed ints)
-		static inline float64_t dot(
-			const int8_t* v1, const int8_t* v2, int32_t n)
-		{
-			float64_t r=0;
-			for (int32_t i=0; i<n; i++)
-				r+=((float64_t) v1[i])*v2[i];
-
-			return r;
-		}
-
-		/// Compute dot product between v1 and v2
-		static inline float64_t dot(
-			const float64_t* v1, const char* v2, int32_t n)
-		{
-			float64_t r=0;
-			for (int32_t i=0; i<n; i++)
-				r+=((float64_t) v1[i])*v2[i];
-
-			return r;
-		}
 
 		/// Compute vector multiplication
 		static inline void vector_multiply(
@@ -572,24 +369,6 @@ template<class T> class SGVector : public SGReferencedData
 			return product(vector, vlen);
 		}
 
-		/** @return min(vec) */
-		static T min(T* vec, int32_t len);
-
-		/** @return max(abs(vec)) */
-		static T max_abs(T* vec, int32_t len);
-
-		/** @return max(vec) */
-		static T max(T* vec, int32_t len);
-
-		/** @return arg_max(vec) */
-		static int32_t arg_max(T * vec, int32_t inc, int32_t len, T * maxv_ptr = NULL);
-
-		/** @return arg_max_abs(vec) */
-		static int32_t arg_max_abs(T * vec, int32_t inc, int32_t len, T * maxv_ptr = NULL);
-
-		/** @return arg_min(vec) */
-		static int32_t arg_min(T * vec, int32_t inc, int32_t len, T * minv_ptr = NULL);
-
 		/** @return sum(abs(vec)) */
 		static T sum_abs(T* vec, int32_t len);
 
@@ -643,12 +422,6 @@ template<class T> class SGVector : public SGReferencedData
 		/// Scale vector inplace
 		void scale(T alpha);
 
-		/** Compute the mean value of the vector
-		 *
-		 * @return the mean value
-		 */
-		float64_t mean() const;
-
 		/** Load vector from file
 		 *
 		 * @param loader File object via which to load data
@@ -660,39 +433,6 @@ template<class T> class SGVector : public SGReferencedData
 		 * @param saver File object via which to save data
 		 */
 		void save(CFile* saver);
-
-		/// Absolute value of vector elements
-		void abs();
-		/// Arc cosine of vector elements
-		void acos();
-		/// Arc sine of vector elements
-		void asin();
-		/// Arc tangent of vector elements
-		void atan();
-		/// Atan2 of vector elements
-		void atan2(T x);
-		/// Cosine of vector elements
-		void cos();
-		/// Hyperbolic cosine of vector elements
-		void cosh();
-		/// Exponential of vector elements
-		void exp();
-		/// Natural logarithm of vector elements
-		void log();
-		/// Common logarithm of vector elements
-		void log10();
-		/// Power of vector elements
-		void pow(T q);
-		/// Sine of vector elements
-		void sin();
-		/// Hyperbolic sine of vector elements
-		void sinh();
-		/// Square root of vector elements
-		void sqrt();
-		/// Tangent of vector elements
-		void tan();
-		/// Hyperbolic tangent of vector elements
-		void tanh();
 
 		/** Real part of a complex128_t vector */
 		SGVector<float64_t> get_real();

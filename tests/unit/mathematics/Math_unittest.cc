@@ -137,17 +137,23 @@ TEST(CMath, linspace_test)
 
 	SGVector<float64_t> vec(100);
 	CMath::linspace(vec.vector, start, end, n);
+	SGVector<float64_t> sg_vec = CMath::linspace_vec(start, end, n);
 
 	// The first and last elements are tested outside the loop, because
 	// linspace sets them directly using the arguments
 	EXPECT_EQ(vec[0], start);
 	EXPECT_EQ(vec[n-1], end);
 
+	// test for CMath::linspace_vec which returns a vector
+	EXPECT_EQ(sg_vec[0], start);
+	EXPECT_EQ(sg_vec[n-1], end);
+
 	float64_t val = start;
 	for (index_t i = 1; i < n-1; ++i)
 	{
 		val += (end-start)/(n-1);
 		EXPECT_EQ(vec[i], val);
+		EXPECT_EQ(sg_vec[i], val);
 	}
 }
 
@@ -365,13 +371,143 @@ TEST(CMath, fequals_close_to_zero)
 	EXPECT_FALSE(CMath::fequals<float64_t>(-CMath::F_MIN_VAL64, 0.000000001f, eps));
 }
 
-TEST(CMath, get_abs_tolorance)
+TEST(CMath, get_abs_tolerance)
 {
-	EXPECT_EQ(CMath::get_abs_tolorance(0.0, 0.01), 0.01);
-	EXPECT_NEAR(CMath::get_abs_tolorance(-0.01, 0.01), 0.0001, 1E-15);
-	EXPECT_NEAR(CMath::get_abs_tolorance(-9.5367431640625e-7, 0.01), 9.5367431640625e-9, 1E-15);
-	EXPECT_NEAR(CMath::get_abs_tolorance(9.5367431640625e-7, 0.01), 9.5367431640625e-9, 1E-15);
-	EXPECT_EQ(CMath::get_abs_tolorance(-CMath::F_MIN_VAL64, 0.01), CMath::F_MIN_VAL64);
-	EXPECT_EQ(CMath::get_abs_tolorance(CMath::F_MIN_VAL64, 0.01), CMath::F_MIN_VAL64);
+	EXPECT_EQ(CMath::get_abs_tolerance(0.0, 0.01), 0.01);
+	EXPECT_NEAR(CMath::get_abs_tolerance(-0.01, 0.01), 0.0001, 1E-15);
+	EXPECT_NEAR(CMath::get_abs_tolerance(-9.5367431640625e-7, 0.01), 9.5367431640625e-9, 1E-15);
+	EXPECT_NEAR(CMath::get_abs_tolerance(9.5367431640625e-7, 0.01), 9.5367431640625e-9, 1E-15);
+	EXPECT_EQ(CMath::get_abs_tolerance(-CMath::F_MIN_VAL64, 0.01), CMath::F_MIN_VAL64);
+	EXPECT_EQ(CMath::get_abs_tolerance(CMath::F_MIN_VAL64, 0.01), CMath::F_MIN_VAL64);
 
+}
+
+TEST(CMath, permute)
+{
+	SGVector<int32_t> v(4);
+	v.range_fill(0);
+	CMath::init_random(2);
+	CMath::permute(v);
+
+	EXPECT_EQ(v[0], 2);
+	EXPECT_EQ(v[1], 1);
+	EXPECT_EQ(v[2], 3);
+	EXPECT_EQ(v[3], 0);
+}
+
+TEST(CMath, permute_with_random)
+{
+	SGVector<int32_t> v(4);
+	v.range_fill(0);
+	CRandom* random = new CRandom(2);
+	CMath::permute(v, random);
+	SG_UNREF(random);
+
+	EXPECT_EQ(v[0], 2);
+	EXPECT_EQ(v[1], 1);
+	EXPECT_EQ(v[2], 3);
+	EXPECT_EQ(v[3], 0);
+}
+
+TEST(CMath,misc)
+{
+	CMath::init_random(17);
+	SGVector<float64_t> a(10);
+	a.random(-1024.0, 1024.0);
+
+	/* test, min, max */
+	int arg_max = 0;
+	float64_t min = 1025, max = -1025;
+	for (int32_t i = 0; i < a.vlen; ++i)
+	{
+		if (a[i] > max)
+		{
+			max = a[i];
+			arg_max=i;
+		}
+		if (a[i] < min)
+			min = a[i];
+	}
+
+	EXPECT_EQ(min, CMath::min(a.vector,a.vlen));
+	EXPECT_EQ(max, CMath::max(a.vector,a.vlen));
+	EXPECT_EQ(arg_max, CMath::arg_max(a.vector,1, a.vlen));
+}
+
+TEST(CMath,vector_qsort_test)
+{
+	SGVector<index_t> v(4);
+	v[0]=12;
+	v[1]=1;
+	v[2]=7;
+	v[3]=9;
+
+	CMath::qsort(v);
+
+	EXPECT_EQ(v.vlen, 4);
+	EXPECT_EQ(v[0], 1);
+	EXPECT_EQ(v[1], 7);
+	EXPECT_EQ(v[2], 9);
+	EXPECT_EQ(v[3], 12);
+}
+
+TEST(CMath,is_sorted)
+{
+	SGVector<index_t> v(4);
+	v[0]=12;
+	v[1]=1;
+	v[2]=7;
+	v[3]=9;
+
+	EXPECT_EQ(CMath::is_sorted(v), false);
+	CMath::qsort(v);
+
+	EXPECT_EQ(CMath::is_sorted(v), true);
+}
+
+TEST(CMath,is_sorted_0)
+{
+	SGVector<index_t> v(0);
+
+	EXPECT_EQ(CMath::is_sorted(v), true);
+	CMath::qsort(v);
+
+	EXPECT_EQ(CMath::is_sorted(v), true);
+}
+
+TEST(CMath,is_sorted_1)
+{
+	SGVector<index_t> v(1);
+	v[0]=12;
+
+	EXPECT_EQ(CMath::is_sorted(v), true);
+	CMath::qsort(v);
+
+	EXPECT_EQ(CMath::is_sorted(v), true);
+}
+
+TEST(CMath,is_sorted_2)
+{
+	SGVector<index_t> v(2);
+	v[0]=12;
+	v[1]=1;
+
+	EXPECT_EQ(CMath::is_sorted(v), false);
+	CMath::qsort(v);
+
+	EXPECT_EQ(CMath::is_sorted(v), true);
+}
+
+TEST(CMath, dot)
+{
+	CMath::init_random(17);
+	SGVector<float64_t> a(10);
+	a.random(0.0, 1024.0);
+	float64_t dot_val = 0.0;
+
+	for (int32_t i = 0; i < a.vlen; ++i)
+		dot_val += a[i]*a[i];
+
+	float64_t sgdot_val = CMath::dot(a.vector,a.vector, a.vlen);
+	EXPECT_NEAR(dot_val, sgdot_val, 1e-9);
 }

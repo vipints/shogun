@@ -37,18 +37,6 @@ using namespace Eigen;
 
 using namespace shogun;
 
-float64_t CStatistics::mean(SGVector<float64_t> values)
-{
-	ASSERT(values.vlen>0)
-	ASSERT(values.vector)
-
-	float64_t sum=0;
-	for (index_t i=0; i<values.vlen; ++i)
-		sum+=values.vector[i];
-
-	return sum/values.vlen;
-}
-
 float64_t CStatistics::median(SGVector<float64_t> values, bool modify,
 			bool in_place)
 {
@@ -1930,7 +1918,7 @@ float64_t CStatistics::fishers_exact_test_for_2x3_table(
 	m[4]=table.matrix[4]+table.matrix[5];
 
 	float64_t n=SGVector<float64_t>::sum(m, m_len)/2.0;
-	int32_t x_len=2*3*CMath::sq(SGVector<float64_t>::max(m, m_len));
+	int32_t x_len=2*3*CMath::sq(CMath::max(m, m_len));
 	float64_t* x=SG_MALLOC(float64_t, x_len);
 	SGVector<float64_t>::fill_vector(x, x_len, 0.0);
 
@@ -2076,7 +2064,7 @@ SGVector<int32_t> CStatistics::sample_indices(int32_t sample_size, int32_t N)
 	SG_FREE(idxs);
 
 	SGVector<int32_t> result=SGVector<int32_t>(permuted_idxs, sample_size);
-	result.qsort();
+	CMath::qsort(result);
 	return result;
 }
 

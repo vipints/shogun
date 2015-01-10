@@ -21,6 +21,7 @@
 */
 
 #include <shogun/classifier/svm/OnlineSVMSGD.h>
+#include <shogun/mathematics/Math.h>
 #include <shogun/base/Parameter.h>
 #include <shogun/lib/Signal.h>
 #include <shogun/loss/HingeLoss.h>
@@ -157,7 +158,7 @@ bool COnlineSVMSGD::train(CFeatures* data)
 	}
 
 	features->end_parser();
-	float64_t wnorm =  SGVector<float32_t>::dot(w,w, w_dim);
+	float64_t wnorm =  CMath::dot(w,w, w_dim);
 	SG_INFO("Norm: %.6f, Bias: %.6f\n", wnorm, bias)
 
 	return true;
@@ -183,7 +184,7 @@ void COnlineSVMSGD::calibrate(int32_t max_vec_num)
 
 		//waste cpu cycles for readability
 		//(only changed dims need checking)
-		m=SGVector<float32_t>::max(c, c_dim);
+		m=CMath::max(c, c_dim);
 		n++;
 
 		features->release_example();

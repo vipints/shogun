@@ -28,8 +28,8 @@
  * either expressed or implied, of the Shogun Development Team.
  */
 
-#include <shogun/mathematics/Math.h>
 #include <shogun/multiclass/tree/RandomCARTree.h>
+#include <shogun/mathematics/Math.h>
 
 using namespace shogun;
 
@@ -95,8 +95,8 @@ int32_t CRandomCARTree::compute_best_attribute(SGMatrix<float64_t> mat, SGVector
 	// randomly choose w/o replacement the attributes from which best will be chosen
 	// randomly permute and choose 1st randsubset_size elements
 	SGVector<index_t> idx(num_feats);
-	idx.range_fill(0);
-	idx.randperm();
+	idx.range_fill();
+	CMath::permute(idx);
 
 	float64_t max_gain=MIN_SPLIT_GAIN;
 	int32_t best_attribute=-1;
@@ -108,7 +108,7 @@ int32_t CRandomCARTree::compute_best_attribute(SGMatrix<float64_t> mat, SGVector
 			feats[j]=mat(idx[i],j);
 
 		// O(N*logN)
-		SGVector<index_t> sorted_args=feats.argsort();
+		SGVector<index_t> sorted_args=CMath::argsort(feats);
 
 		// number of non-missing vecs
 		int32_t n_nm_vecs=feats.vlen;

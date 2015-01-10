@@ -17,7 +17,7 @@
 #include <shogun/multiclass/tree/RelaxedTreeUtil.h>
 #include <shogun/multiclass/tree/RelaxedTree.h>
 #include <shogun/kernel/GaussianKernel.h>
-
+#include <shogun/mathematics/Math.h>
 
 using namespace shogun;
 
@@ -471,7 +471,7 @@ SGVector<int32_t> CRelaxedTree::color_label_space(CSVM *svm, SGVector<int32_t> c
 	if (npos == 0)
 	{
 		// no positive class
-		index_t min_idx = SGVector<float64_t>::arg_min(xi_pos_class.vector, 1, xi_pos_class.vlen);
+		index_t min_idx = CMath::arg_min(xi_pos_class.vector, 1, xi_pos_class.vlen);
 		mu[min_idx] = 1;
 	}
 
@@ -485,7 +485,7 @@ SGVector<int32_t> CRelaxedTree::color_label_space(CSVM *svm, SGVector<int32_t> c
 	if (nneg == 0)
 	{
 		// no negative class
-		index_t min_idx = SGVector<float64_t>::arg_min(xi_neg_class.vector, 1, xi_neg_class.vlen);
+		index_t min_idx = CMath::arg_min(xi_neg_class.vector, 1, xi_neg_class.vlen);
 		if (mu[min_idx] == 1 && (npos == 0 || npos == 1))
 		{
 			// avoid overwritting the only positive class
@@ -579,7 +579,7 @@ void CRelaxedTree::enforce_balance_constraints_upper(SGVector<int32_t> &mu, SGVe
 		}
 	}
 
-	SGVector<index_t> sorted_index = S_delta.argsort();
+	SGVector<index_t> sorted_index = CMath::argsort(S_delta);
 	SGVector<float64_t> S_delta_sorted(S_delta.vlen);
 	for (index_t i=0; i < sorted_index.vlen; ++i)
 	{
@@ -768,7 +768,7 @@ void CRelaxedTree::enforce_balance_constraints_lower(SGVector<int32_t> &mu, SGVe
 		}
 	}
 
-	SGVector<index_t> sorted_index = S_delta.argsort();
+	SGVector<index_t> sorted_index = CMath::argsort(S_delta);
 	SGVector<float64_t> S_delta_sorted(S_delta.vlen);
 	for (index_t i=0; i < sorted_index.vlen; ++i)
 	{

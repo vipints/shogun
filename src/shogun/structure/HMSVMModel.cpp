@@ -11,7 +11,9 @@
 #include <shogun/structure/HMSVMModel.h>
 #include <shogun/features/MatrixFeatures.h>
 #include <shogun/structure/TwoStateModel.h>
+#include <shogun/mathematics/Math.h>
 #include <shogun/structure/Plif.h>
+#include <shogun/mathematics/Math.h>
 
 using namespace shogun;
 
@@ -337,7 +339,7 @@ CResultSet* CHMSVMModel::argmax(
 	{
 		ret->delta     = CStructuredModel::delta_loss(feat_idx, ypred);
 		ret->psi_truth = CStructuredModel::get_joint_feature_vector(feat_idx, feat_idx);
-		ret->score    -= SGVector< float64_t >::dot(w.vector, ret->psi_truth.vector, dim);
+		ret->score    -= CMath::dot(w.vector, ret->psi_truth.vector, dim);
 	}
 
 	return ret;
@@ -558,7 +560,7 @@ void CHMSVMModel::init_training()
 		}
 
 		// Choose the supporting points so that roughly the same number of points fall in each bin
-		SGVector< float64_t > a = SGVector< float64_t >::linspace_vec(1, N, m_num_plif_nodes+1);
+		SGVector< float64_t > a = CMath::linspace_vec(1, N, m_num_plif_nodes+1);
 		SGVector< index_t > signal_idxs(m_num_plif_nodes);
 		for ( int32_t i = 0 ; i < signal_idxs.vlen ; ++i )
 			signal_idxs[i] = (index_t) CMath::round( (a[i] + a[i+1]) / 2 ) - 1;
@@ -576,7 +578,7 @@ void CHMSVMModel::init_training()
 					signal[idx++] = feat_vec(f,j);
 			}
 
-			signal.qsort();
+			CMath::qsort(signal);
 			SGVector< float64_t > limits(m_num_plif_nodes);
 			for ( int32_t i = 0 ; i < m_num_plif_nodes ; ++i )
 				limits[i] = signal[ signal_idxs[i] ];
